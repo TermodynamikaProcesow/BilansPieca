@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Balance.cs" />
+    <Compile Include="FileStream.cs" />
     <Compile Include="InputData.cs" />
     <Compile Include="OutputData.cs" />
     <Compile Include="Program.cs" />

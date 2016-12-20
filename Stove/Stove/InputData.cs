@@ -1,4 +1,6 @@
-﻿namespace Stove
+﻿using System;
+
+namespace Stove
 {
     class InputData
     {
@@ -62,5 +64,31 @@
         /// współczynnik podziału ciepła do spalin i otoczenia
         /// </summary>
         public double beta { get; set; }
+
+
+        public InputData(string[] inputData)
+        {
+            var inputCount = inputData.Length;
+            if (inputCount < 15)
+                throw new Exception("Too few input elements!");
+            else if (inputCount > 15)
+                throw new Exception("Too many input elements!");
+
+            CO = double.Parse(inputData[0].Replace('.', ','));
+            CO2 = double.Parse(inputData[1].Replace('.', ','));
+            CH4 = double.Parse(inputData[2].Replace('.', ','));
+            O2 = double.Parse(inputData[3].Replace('.', ','));
+            N2 = double.Parse(inputData[4].Replace('.', ','));
+            H2 = double.Parse(inputData[5].Replace('.', ','));
+            lambda = double.Parse(inputData[6].Replace('.', ','));
+            V = double.Parse(inputData[7].Replace('.', ','));
+            tg = double.Parse(inputData[8].Replace('.', ','));
+            tp = double.Parse(inputData[9].Replace('.', ','));
+            twIn = double.Parse(inputData[10].Replace('.', ','));
+            mw = double.Parse(inputData[11].Replace('.', ','));
+            A = double.Parse(inputData[12].Replace('.', ','));
+            alfa = double.Parse(inputData[13].Replace('.', ','));
+            beta = double.Parse(inputData[14].Replace('.', ','));
+        }
     }
 }

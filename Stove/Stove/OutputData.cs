@@ -1,4 +1,7 @@
-﻿namespace Stove
+﻿using System;
+using System.Text;
+
+namespace Stove
 {
     class OutputData
     {
@@ -74,5 +77,38 @@
         /// sprawność pieca
         /// </summary>
         public double eta { get; set; }
+
+        public override string ToString()
+        {
+            try
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine($"CO2 = {CO2} %");
+                sb.AppendLine($"H2O = {H2O} %");
+                sb.AppendLine($"N2 = {N2} %");
+                sb.AppendLine($"O2 = {O2} %");
+                sb.AppendLine($"Vg = {Vg} Nm3/h");
+                sb.AppendLine($"Vc = {Vc} Nm3/h");
+                sb.AppendLine($"Vc = {VcRz} m3/h");
+                sb.AppendLine($"Vs = {Vs} Nm3/h");
+                sb.AppendLine($"Vs = {VsRz} m3/h");
+                sb.AppendLine($"t,w = {tw} oC");
+                sb.AppendLine($"t,a = {ta} oC");
+                sb.AppendLine($"t,s = {ts} oC");
+                sb.AppendLine($"Q,q = {Qq} kW");
+                sb.AppendLine($"Q,p = {Qp} kW");
+                sb.AppendLine($"Q,w = {Qw} kW");
+                sb.AppendLine($"Q,s = {Qs} kW");
+                sb.AppendLine($"Q,str = {Qstr} kW");
+                sb.AppendLine($"eta = {eta}");
+
+                return sb.ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error while OutputData.ToString() - {ex}");
+                return null;
+            }
+        }
     }
 }
