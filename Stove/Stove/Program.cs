@@ -1,12 +1,29 @@
-﻿namespace Stove
+﻿using System;
+using System.Globalization;
+
+namespace Stove
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        public static readonly CultureInfo CultureInfo = new CultureInfo("en");
+
+        static void Main()
         {
-            InputData inputData = FileStream.Read("input.dat");
-            OutputData outputData = Balance.Estimate(inputData);
-            FileStream.Write(outputData, "output1.dat");
+            try
+            {
+                InputData inputData = FileStream.Read("input.dat");
+                OutputData outputData = Balance.Estimate(inputData);
+                FileStream.Write(outputData, "output.dat");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                Console.WriteLine("\nPress any key to continue...");
+                Console.ReadKey();
+            }
         }
     }
 }

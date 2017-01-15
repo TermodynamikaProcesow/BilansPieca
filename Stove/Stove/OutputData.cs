@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Stove
 {
-    class OutputData
+    internal class OutputData : IData
     {
         /// <summary>
         /// % - stezenie CO2 w spalinach
@@ -82,33 +82,39 @@ namespace Stove
         {
             try
             {
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine($"CO2 = {CO2} %");
-                sb.AppendLine($"H2O = {H2O} %");
-                sb.AppendLine($"N2 = {N2} %");
-                sb.AppendLine($"O2 = {O2} %");
-                sb.AppendLine($"Vg = {Vg} Nm3/h");
-                sb.AppendLine($"Vc = {Vc} Nm3/h");
-                sb.AppendLine($"Vc = {VcRz} m3/h");
-                sb.AppendLine($"Vs = {Vs} Nm3/h");
-                sb.AppendLine($"Vs = {VsRz} m3/h");
-                sb.AppendLine($"t,w = {tw} oC");
-                sb.AppendLine($"t,a = {ta} oC");
-                sb.AppendLine($"t,s = {ts} oC");
-                sb.AppendLine($"Q,q = {Qq} kW");
-                sb.AppendLine($"Q,p = {Qp} kW");
-                sb.AppendLine($"Q,w = {Qw} kW");
-                sb.AppendLine($"Q,s = {Qs} kW");
-                sb.AppendLine($"Q,str = {Qstr} kW");
-                sb.AppendLine($"eta = {eta}");
+                var ci = Program.CultureInfo;
+                var sb = new StringBuilder();
+                sb.AppendLine(string.Format(ci, "CO2 = {0} %", CO2));
+                sb.AppendLine(string.Format(ci, "H2O = {0} %", H2O));
+                sb.AppendLine(string.Format(ci, "N2 = {0} %", N2));
+                sb.AppendLine(string.Format(ci, "O2 = {0} %", O2));
+                sb.AppendLine(string.Format(ci, "Vg = {0} Nm3/h", Vg));
+                sb.AppendLine(string.Format(ci, "Vc = {0} Nm3/h", Vc));
+                sb.AppendLine(string.Format(ci, "Vc = {0} m3/h", VcRz));
+                sb.AppendLine(string.Format(ci, "Vs = {0} Nm3/h", Vs));
+                sb.AppendLine(string.Format(ci, "Vs = {0} m3/h", VsRz));
+                sb.AppendLine(string.Format(ci, "t,w = {0} oC", tw));
+                sb.AppendLine(string.Format(ci, "t,a = {0} oC", ta));
+                sb.AppendLine(string.Format(ci, "t,s = {0} oC", ts));
+                sb.AppendLine(string.Format(ci, "Q,q = {0} kW", Qq));
+                sb.AppendLine(string.Format(ci, "Q,p = {0} kW", Qp));
+                sb.AppendLine(string.Format(ci, "Q,w = {0} kW", Qw));
+                sb.AppendLine(string.Format(ci, "Q,s = {0} kW", Qs));
+                sb.AppendLine(string.Format(ci, "Q,str = {0} kW", Qstr));
+                sb.AppendLine(string.Format(ci, "eta = {0}", eta));
 
                 return sb.ToString();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error while OutputData.ToString() - {ex}");
-                return null;
+                return string.Empty;
             }
+        }
+
+        public void DisplayData()
+        {
+            Console.Write(ToString());
         }
     }
 }

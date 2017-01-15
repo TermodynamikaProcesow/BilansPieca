@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Stove
 {
-    class FileStream
+    internal class FileStream
     {
         public static InputData Read(string fileName)
         {
@@ -20,8 +16,8 @@ namespace Stove
                 }
 
                 if (string.IsNullOrWhiteSpace(data)) throw new Exception("Data is null or white space!");
-                
-                string[] inputData = data.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                string[] inputData = data.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries);
 
                 return new InputData(inputData);
             }
