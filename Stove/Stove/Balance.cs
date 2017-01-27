@@ -4,83 +4,164 @@ namespace Stove
 {
     internal class Balance
     {
-        private const double Qco = 12610.576;
-        private const double Qch4 = 35856.88;
-        private const double Qh2 = 10752.88;
-        private const double TemperatureReference = 273.15;
-        private const double PressureNormal = 101325;
+        //zmienne stałe
+        public static double Qco = 12610.576;
+        public static double Qch4 = 35856.88;
+        public static double Qh2 = 10752.88;
+        public static double TemperatureReference = 273.15;
+        public static double PressureNormal = 101325;
+        public static double ksi = 0;
 
         public static OutputData Estimate(InputData input)
         {
             var ci = Program.CultureInfo;
             input.DisplayData();
 
-            double theoreticalOxygen = CountTheoreticalOxygen(input.CO, input.CH4, input.H2, input.O2);
-            Console.WriteLine(string.Format(ci, "{0} tlen teoretyczny", theoreticalOxygen));
+           // double theoreticalOxygen = CountTheoreticalOxygen(input.CO, input.CH4, input.H2, input.O2);
+           // Console.WriteLine(string.Format(ci, "{0} tlen teoretyczny", theoreticalOxygen));
 
-            double totalOxygen = CountTotalOxygen(theoreticalOxygen, input.lambda);
-            Console.WriteLine(string.Format(ci, "{0} tlen całkowity", totalOxygen));
+           // double totalOxygen = CountTotalOxygen(theoreticalOxygen, input.lambda);
+          //  Console.WriteLine(string.Format(ci, "{0} tlen całkowity", totalOxygen));
 
-            double theoreticalAir = CountTheoreticalAir(theoreticalOxygen);
-            Console.WriteLine(string.Format(ci, "{0} powietrze teoretyczne", theoreticalAir));
+         //   double theoreticalAir = CountTheoreticalAir(theoreticalOxygen);
+           // Console.WriteLine(string.Format(ci, "{0} powietrze teoretyczne", theoreticalAir));
 
-            return new OutputData();
+            //tlen teoretyczny
+            double Ot = countOt(input.CO, input.CH4, input.H2, input.O2);
+            Console.WriteLine("Tlen teoretyczny: {0} [m3 O2 / m3 paliwa]", Ot.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            //tlen całkowity
+            double Oc = countOc(Ot, input.lambda);
+            Console.WriteLine("Tlen całkowity: {0} [m3 O2 / m3 paliwa]", Oc.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            //powietrze teoretyczne
+            double Vo = countVo(Ot);
+            Console.WriteLine("Powietrze teoretyczne: {0} [m3 powietrza / m3 paliwa]", Vo.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            //powietrze całkowite
+            double Vc = countVc(input.lambda, Vo);
+            Console.WriteLine("Powietrze całkowite: {0} [m3 powietrza / m3 paliwa]\n", Vc.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            //strumien objętości gazu w warunkach rzeczywistych
+            double Vg_wrz = countVg_wrz(input.tg, input.V);
+            Console.WriteLine("Objętościowy strumień paliwa: ");
+            Console.WriteLine("Warunki normalne: {0} Nm3/h", input.V.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            Console.WriteLine("Warunki rzeczywiste: {0} m3/h\n", Vg_wrz.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+
+            //ilość i skład spalin
+            double V_CO2 = countV_CO2(input.CO, input.CO2, input.CH4);
+            double V_H2O = countV_H2O(input.H2, input.CH4, ksi, Vg_wrz);
+            double V_N2 = countV_N2(input.N2, Vc);
+            double V_O2 = countV_O2(Oc, Ot);
+            double VSprim = countVSprim(V_CO2, V_H2O, V_N2, V_O2);
+            Console.WriteLine("Spaliny wilgotne Vs': {0} [m3 spalin / m3 paliwa]", VSprim.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            double V_CO2sp = countV_PercentSp(V_CO2, VSprim);
+            double V_H2Osp = countV_PercentSp(V_H2O, VSprim);
+            double V_N2sp = countV_PercentSp(V_N2, VSprim);
+            double V_O2sp = countV_PercentSp(V_O2, VSprim);
+            Console.WriteLine("Zawartość CO2 w spalinach: {0} %", V_CO2sp.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            Console.WriteLine("Zawartość H2O w spalinach: {0} %", V_H2Osp.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            Console.WriteLine("Zawartość N2 w spalinach: {0} %", V_N2sp.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            Console.WriteLine("Zawartość O2 w spalinach: {0} %\n", V_O2sp.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+
+            //strumień objętości powietrza
+            double Vc_wn = countVc_wn(Vc, input.V);
+            double Vc_wrz = countVc_wrz(input.tp, Vc_wn);
+            Console.WriteLine("Objętościowy strumień powietrza: ");
+            Console.WriteLine("Warunki normalne: {0} Nm3/h", Vc_wn.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+            Console.WriteLine("Warunki rzeczywiste: {0} m3/h", Vc_wrz.ToString("F5", System.Globalization.CultureInfo.InvariantCulture));
+
+            //strumień objętości spalin
+            //double VolumeS = CountVs(input.V, Vc_wn);
+
+
+
+            //zapis do pliku
+            OutputData output = new OutputData();
+            output.CO2 = Math.Round(V_CO2sp, 2);
+            output.H2O = Math.Round(V_H2Osp, 2);
+            output.N2 = Math.Round(V_N2sp, 2);
+            output.O2 = Math.Round(V_O2sp, 2);
+            output.Vg = Math.Round(input.V, 2);
+            output.Vc = Math.Round(Vc_wn, 2);
+            output.VcRz = Math.Round(Vc_wrz, 2);
+            output.Vs = Math.Round(0.0, 2);
+            output.VsRz = Math.Round(0.0, 2);
+            output.tw = Math.Round(0.0, 2);
+            output.ta = Math.Round(0.0, 2);
+            output.ts = Math.Round(0.0, 2);
+            output.Qq = Math.Round(0.0, 2);
+            output.Qp = Math.Round(0.0, 2);
+            output.Qw = Math.Round(0.0, 2);
+            output.Qstr = Math.Round(0.0, 2);
+            output.eta = Math.Round(0.0, 2);
+            Console.ReadKey();
+
+            return output;
         }
 
-        private static double CountTheoreticalOxygen(double CO, double CH4, double H2, double O2)
+        //obliczenie ilości tlenu teoretycznego
+        public static double countOt(double CO, double CH4, double H2, double O2)
         {
             return 0.5 * CO / 100 + 2 * CH4 / 100 + 0.5 * H2 / 100 - O2 / 100;
         }
 
-        private static double CountTotalOxygen(double theoreticalOxygen, double lambda)
+        //obliczenie ilości tlenu całkowitego
+        public static double countOc(double TheoreticalOxygen, double lambda)
         {
-            return lambda * theoreticalOxygen;
+            return lambda * TheoreticalOxygen;
         }
 
-        private static double CountTheoreticalAir(double theoreticalOxygen)
+        //obliczenie ilości powietrza teoretycznego
+        public static double countVo(double Ot)
         {
-            return theoreticalOxygen * 100 / 21;
+            return Ot * 100 / 21;
+        }
+        //obliczenie ilości powietrza całkowitego
+        public static double countVc(double lambda, double Vo)
+        {
+            return lambda * Vo;
+        }
+        //obliczenie ilości gazu w warunkach rzeczywistych
+        public static double countVg_wrz(double TemperatureGas, double VolumeGas)
+        {
+            return VolumeGas * (TemperatureGas + TemperatureReference) / TemperatureReference;
         }
 
-        private static double CountTotalAir()
+        //funkcje do obliczenia ilości i składu spalin
+        public static double countV_CO2(double procentCO, double procentCO2, double procentCH4)
         {
-            return 1;
+            return ((procentCO / 100) + (procentCO2 / 100) + (procentCH4 / 100));
+        }
+        public static double countV_H2O(double procentH2, double procentCH4, double ksi, double VolumeGasReal)
+        {
+            return ((procentH2 / 100) + (2 * procentCH4 / 100) + (0.0016 * ksi * VolumeGasReal));
         }
 
-
-        private static double CountVPrims()
+        public static double countV_N2(double procentN2, double V)
         {
-            return 1;
+            return ((procentN2 / 100) + (V * 79 / 100));
         }
 
-        private static double CountVgrz()
+        public static double countV_O2(double Oc, double Ot)
         {
-            return 1;
+            return Oc - Ot;
+        }
+        public static double countVSprim(double V_CO2, double V_H2O, double V_N2, double V_O2)
+        {
+            return V_CO2 + V_H2O + V_N2 + V_O2;
         }
 
-        private static double CountVc()
+        public static double countV_PercentSp(double V_Component, double VSprim)
         {
-            return 1;
+            return V_Component / VSprim * 100;
         }
 
-        private static double CountVcrz()
+        //strumień objętości powietrza w warunkach normalnych
+        public static double countVc_wn(double Vc, double Vg)
         {
-            return 1;
+            return Vc * Vg;
         }
-
-        private static double CountVs()
+        //strumień objętości powietrza w warunkach rzeczywistych
+        public static double countVc_wrz(double tp, double Vc_wn)
         {
-            return 1;
-        }
-
-        private static double CountVsrz()
-        {
-            return 1;
-        }
-
-        private static double CountQ_q()
-        {
-            return 1;
+            return Vc_wn * (tp + TemperatureReference) / TemperatureReference;
         }
 
         //funkcje z pliku z wytycznymi
