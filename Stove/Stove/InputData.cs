@@ -8,63 +8,82 @@ namespace Stove
         /// <summary>
         /// % - zawartosc CO w paliwie
         /// </summary>
-        public double CO { get; private set; }
+        public double CO { get; }
         /// <summary>
         /// % - zawartosc CO2 w paliwie
         /// </summary>
-        public double CO2 { get; private set; }
+        public double CO2 { get; }
         /// <summary>
         /// % - zawartosc CH4 w paliwie
         /// </summary>
-        public double CH4 { get; private set; }
+        public double CH4 { get; }
         /// <summary>
         /// % - zawartosc O2 w paliwie
         /// </summary>
-        public double O2 { get; private set; }
+        public double O2 { get; }
         /// <summary>
         /// % - zawartosc N2 w paliwie
         /// </summary>
-        public double N2 { get; private set; }
+        public double N2 { get; }
         /// <summary>
         /// % - zawartosc H2 w paliwie
         /// </summary>
-        public double H2 { get; private set; }
+        public double H2 { get; }
         /// <summary>
         /// współczynnik nadmiaru powietrza
         /// </summary>
-        public double lambda { get; private set; }
+        public double lambda { get; }
         /// <summary>
         /// Nm3/h - objetosciowy strumien paliwa
         /// </summary>
-        public double V { get; private set; }
+        public double Vg { get; }
         /// <summary>
         /// oC - temp. paliwa
         /// </summary>
-        public double tg { get; private set; }
+        public double tg { get; }
         /// <summary>
         /// oC - temp. powietrza
         /// </summary>
-        public double tp { get; private set; }
+        public double tp { get; }
         /// <summary>
         /// oC - temp. wody przed piecem
         /// </summary>
-        public double twIn { get; private set; }
+        public double twIn { get; }
         /// <summary>
         /// kg/h - masowy strumien wody w wymienniku pieca
         /// </summary>
-        public double mw { get; private set; }
+        public double mw { get; }
         /// <summary>
         /// m2 - powierzchnia wymiennika w piecu
         /// </summary>
-        public double A { get; private set; }
+        public double A { get; }
         /// <summary>
         /// współczynnik przejmowania ciepla wymiennika
         /// </summary>
-        public double alfa { get; private set; }
+        public double alfa { get; }
         /// <summary>
         /// współczynnik podziału ciepła do spalin i otoczenia
         /// </summary>
-        public double beta { get; private set; }
+        public double beta { get; }
+
+        public InputData(InputData input, int Vg_multiplication)
+        {
+            CO = input.CO;
+            CO2 = input.CO2;
+            CH4 = input.CH4;
+            O2 = input.O2;
+            N2 = input.N2;
+            H2 = input.H2;
+            lambda = input.lambda;
+            Vg = Vg_multiplication * input.Vg;
+            tg = input.tg;
+            tp = input.tp;
+            twIn = input.twIn;
+            mw = input.mw;
+            A = input.A;
+            alfa = input.alfa;
+            beta = input.beta;
+        }
 
         public InputData(string[] inputData)
         {
@@ -83,7 +102,7 @@ namespace Stove
             N2 = double.Parse(inputData[4], ci);
             H2 = double.Parse(inputData[5], ci);
             lambda = double.Parse(inputData[6], ci);
-            V = double.Parse(inputData[7], ci);
+            Vg = double.Parse(inputData[7], ci);
             tg = double.Parse(inputData[8], ci);
             tp = double.Parse(inputData[9], ci);
             twIn = double.Parse(inputData[10], ci);
@@ -106,7 +125,7 @@ namespace Stove
                 sb.AppendLine(string.Format(ci, "{0} % -> zawartość N2 w paliwie", N2));
                 sb.AppendLine(string.Format(ci, "{0} % -> zawartość H2 w paliwie", H2));
                 sb.AppendLine(string.Format(ci, "{0} -> współczynnik nadmiaru powietrza", lambda));
-                sb.AppendLine(string.Format(ci, "{0} Nm/h -> objętościowy strumień paliwa", V));
+                sb.AppendLine(string.Format(ci, "{0} Nm/h -> objętościowy strumień paliwa", Vg));
                 sb.AppendLine(string.Format(ci, "{0} st. C -> temperatura paliwa", tg));
                 sb.AppendLine(string.Format(ci, "{0} st. C -> temperatura powietrza", tp));
                 sb.AppendLine(string.Format(ci, "{0} st. C -> temperatura wody przed piecem", twIn));

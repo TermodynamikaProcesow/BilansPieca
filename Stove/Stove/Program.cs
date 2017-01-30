@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -9,20 +10,50 @@ namespace Stove
 {
     internal class Program
     {
-        public static readonly CultureInfo CultureInfo = new CultureInfo("en");
+        public static readonly CultureInfo CultureInfo = CultureInfo.InvariantCulture;
 
-        static void Main()
+        private static void Main()
         {
             try
             {
-                InputData inputData = FileStream.Read("input.dat");
-                OutputData outputData = Balance.Estimate(inputData);
-                FileStream.Write(outputData, "output.dat");
+                InputData inputData1 = FileStream.Read("input.dat");
+                inputData1.DisplayData();
 
-                DrawChart();
+                List<OutputData> outputDatas = new List<OutputData>();
+//
+//                Console.WriteLine("\nPress any key to estimate output1.dat...");
+//                Console.ReadKey();
+
+                OutputData outputData1 = Balance.Estimate(inputData1);
+                FileStream.Write(outputData1, "output1.dat");
+                outputDatas.Add(outputData1);
+//                outputData1.DisplayData();
+//                
+//                Console.WriteLine("\nPress any key to estimate output2.dat...");
+//                Console.ReadKey();
+
+                OutputData outputData2 = Balance.Estimate(new InputData(inputData1, 2));
+                FileStream.Write(outputData2, "output2.dat");
+                outputDatas.Add(outputData2);
+//                outputData2.DisplayData();
+//                
+//                Console.WriteLine("\nPress any key to estimate output3.dat...");
+//                Console.ReadKey();
+
+                OutputData outputData3 = Balance.Estimate(new InputData(inputData1, 3));
+                FileStream.Write(outputData3, "output3.dat");
+                outputDatas.Add(outputData3);
+//                outputData3.DisplayData();
+//
+//                Console.WriteLine("\nPress any key to draw chart...");
+//                Console.ReadKey();
+
+                DrawChart(outputDatas);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.BackgroundColor = ConsoleColor.DarkRed;
                 Console.WriteLine(ex);
             }
             finally
@@ -32,60 +63,100 @@ namespace Stove
             }
         }
 
-        private static void DrawChart()
+        private static void DrawChart(IEnumerable<OutputData> outputDatas)
         {
-            //populate dataset with some demo data..
+            //populate dataset with outputDatas..
             DataSet dataSet = new DataSet();
             DataTable dt = new DataTable();
-            dt.Columns.Add("Name", typeof(string));
-            dt.Columns.Add("Counter", typeof(int));
-            DataRow r1 = dt.NewRow();
-            r1[0] = "Demo";
-            r1[1] = 8;
-            dt.Rows.Add(r1);
-            DataRow r2 = dt.NewRow();
-            r2[0] = "Second";
-            r2[1] = 15;
-            dt.Rows.Add(r2);
+            dt.Columns.Add("Vg", typeof(string));
+            dt.Columns.Add("Vc", typeof(int));
+            dt.Columns.Add("Vs", typeof(int));
+
+            foreach (var data in outputDatas)
+            {
+                DataRow r = dt.NewRow();
+                r[0] = data.Vg.ToString(CultureInfo);
+                r[1] = data.Vc;
+                r[2] = data.Vs;
+                dt.Rows.Add(r);
+            }
+
             dataSet.Tables.Add(dt);
 
-
             //prepare chart control...
-            Chart chart = new Chart();
-            chart.DataSource = dataSet.Tables[0];
-            chart.Width = 600;
-            chart.Height = 350;
-            //create serie...
-            Series serie1 = new Series();
-            serie1.Name = "Serie1";
-            serie1.Color = Color.FromArgb(112, 255, 200);
-            serie1.BorderColor = Color.FromArgb(164, 164, 164);
-            serie1.ChartType = SeriesChartType.Column;
-            serie1.BorderDashStyle = ChartDashStyle.Solid;
-            serie1.BorderWidth = 1;
-            serie1.ShadowColor = Color.FromArgb(128, 128, 128);
-            serie1.ShadowOffset = 1;
-            serie1.IsValueShownAsLabel = true;
-            serie1.XValueMember = "Name";
-            serie1.YValueMembers = "Counter";
-            serie1.Font = new Font("Tahoma", 8.0f);
-            serie1.BackSecondaryColor = Color.FromArgb(0, 102, 153);
-            serie1.LabelForeColor = Color.FromArgb(100, 100, 100);
-            chart.Series.Add(serie1);
+            Chart chart = new Chart
+            {
+                DataSource = dataSet.Tables[0],
+                Width = 1280,
+                Height = 720
+            };
+
+            //create serie Vc...
+            chart.Series.Add(new Series
+            {
+                Name = "Vc",
+                Color = Color.FromArgb(100, 0, 100),
+                BorderColor = Color.FromArgb(164, 164, 164),
+                ChartType = SeriesChartType.FastLine,
+                BorderDashStyle = ChartDashStyle.Solid,
+                BorderWidth = 3,
+                ShadowColor = Color.FromArgb(128, 128, 128),
+                ShadowOffset = 1,
+                IsValueShownAsLabel = true,
+                XValueMember = "Vg",
+                YValueMembers = "Vc",
+                Font = new Font("Tahoma", 8.0f),
+                BackSecondaryColor = Color.FromArgb(0, 102, 153),
+                LabelForeColor = Color.FromArgb(100, 100, 100)
+            });
+
+            //create serie Vs...
+            chart.Series.Add(new Series
+            {
+                Name = "Vs",
+                Color = Color.FromArgb(0, 100, 0),
+                BorderColor = Color.FromArgb(164, 164, 164),
+                ChartType = SeriesChartType.FastLine,
+                BorderDashStyle = ChartDashStyle.Solid,
+                BorderWidth = 3,
+                ShadowColor = Color.FromArgb(128, 128, 128),
+                ShadowOffset = 1,
+                IsValueShownAsLabel = true,
+                XValueMember = "Vg",
+                YValueMembers = "Vs",
+                Font = new Font("Tahoma", 8.0f),
+                BackSecondaryColor = Color.FromArgb(0, 102, 153),
+                LabelForeColor = Color.FromArgb(100, 100, 100)
+            });
+
             //create chartareas...
-            ChartArea ca = new ChartArea();
-            ca.Name = "ChartArea1";
-            ca.BackColor = Color.White;
-            ca.BorderColor = Color.FromArgb(26, 59, 105);
-            ca.BorderWidth = 0;
-            ca.BorderDashStyle = ChartDashStyle.Solid;
-            ca.AxisX = new Axis();
-            ca.AxisY = new Axis();
-            chart.ChartAreas.Add(ca);
+            chart.ChartAreas.Add(new ChartArea
+            {
+                Name = "ChartArea1",
+                BackColor = Color.White,
+                BorderColor = Color.FromArgb(26, 59, 105),
+                BorderWidth = 0,
+                BorderDashStyle = ChartDashStyle.Solid,
+                AxisX = new Axis
+                {
+                    Title = "Vg [Nm3/h]",
+                    TitleFont = new Font("Tahoma", 12.0f)
+                },
+                AxisY = new Axis
+                {
+                    Title = "V [m3/h]",
+                    TitleFont = new Font("Tahoma", 12.0f),
+                }
+            });
+
+            chart.Legends.Add(new Legend("Legend") { Font = new Font("Tahoma", 12.0f) });
+
             //databind...
             chart.DataBind();
+
             //save result...
             chart.SaveImage("chart.png", ChartImageFormat.Png);
+
             //open result...
             ProcessStartInfo psi = new ProcessStartInfo("chart.png") { UseShellExecute = true };
             Process.Start(psi);
