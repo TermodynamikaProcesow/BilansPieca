@@ -21,8 +21,8 @@ namespace Stove
             {
                 DataRow r = dt.NewRow();
                 r[0] = data.Vg;
-                r[1] = data.Vc;
-                r[2] = data.Vs;
+                r[1] = data.VcRz;
+                r[2] = data.VsRz;
                 dt.Rows.Add(r);
             }
 
