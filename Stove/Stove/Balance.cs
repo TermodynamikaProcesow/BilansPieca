@@ -16,24 +16,24 @@ namespace Stove
         {
             var ci = Program.CultureInfo;
             
-            Console.WriteLine("\nWyniki obliczeń: \n");
+//            Console.WriteLine("\nWyniki obliczeń: \n");
             //tlen teoretyczny
             double Ot = countOt(input.CO, input.CH4, input.H2, input.O2);
-            Console.WriteLine("Tlen teoretyczny: {0} [m3 O2 / m3 paliwa]", Ot.ToString("F5", ci));
+//            Console.WriteLine("Tlen teoretyczny: {0} [m3 O2 / m3 paliwa]", Ot.ToString("F5", ci));
             //tlen całkowity
             double Oc = countOc(Ot, input.lambda);
-            Console.WriteLine("Tlen całkowity: {0} [m3 O2 / m3 paliwa]", Oc.ToString("F5", ci));
+//            Console.WriteLine("Tlen całkowity: {0} [m3 O2 / m3 paliwa]", Oc.ToString("F5", ci));
             //powietrze teoretyczne
             double Vo = countVo(Ot);
-            Console.WriteLine("Powietrze teoretyczne: {0} [m3 powietrza / m3 paliwa]", Vo.ToString("F5", ci));
+//            Console.WriteLine("Powietrze teoretyczne: {0} [m3 powietrza / m3 paliwa]", Vo.ToString("F5", ci));
             //powietrze całkowite
             double Vc = countVc(input.lambda, Vo);
-            Console.WriteLine("Powietrze całkowite: {0} [m3 powietrza / m3 paliwa]\n", Vc.ToString("F5", ci));
+//            Console.WriteLine("Powietrze całkowite: {0} [m3 powietrza / m3 paliwa]\n", Vc.ToString("F5", ci));
             //strumien objętości gazu w warunkach rzeczywistych
             double Vg_wrz = countVg_wrz(input.tg, input.Vg);
-            Console.WriteLine("Objętościowy strumień paliwa: ");
-            Console.WriteLine("Warunki normalne: {0} Nm3/h", input.Vg.ToString("F5", ci));
-            Console.WriteLine("Warunki rzeczywiste: {0} m3/h\n", Vg_wrz.ToString("F5", ci));
+//            Console.WriteLine("Objętościowy strumień paliwa: ");
+//            Console.WriteLine("Warunki normalne: {0} Nm3/h", input.Vg.ToString("F5", ci));
+//            Console.WriteLine("Warunki rzeczywiste: {0} m3/h\n", Vg_wrz.ToString("F5", ci));
 
             //ilość i skład spalin
             double V_CO2 = countV_CO2(input.CO, input.CO2, input.CH4);
@@ -41,61 +41,61 @@ namespace Stove
             double V_N2 = countV_N2(input.N2, Vc);
             double V_O2 = countV_O2(Oc, Ot);
             double VSprim = countVSprim(V_CO2, V_H2O, V_N2, V_O2);
-            Console.WriteLine("Spaliny wilgotne Vs': {0} [m3 spalin / m3 paliwa]", VSprim.ToString("F5", ci));
+//            Console.WriteLine("Spaliny wilgotne Vs': {0} [m3 spalin / m3 paliwa]", VSprim.ToString("F5", ci));
             double V_CO2sp = countV_PercentSp(V_CO2, VSprim);
             double V_H2Osp = countV_PercentSp(V_H2O, VSprim);
             double V_N2sp = countV_PercentSp(V_N2, VSprim);
             double V_O2sp = countV_PercentSp(V_O2, VSprim);
-            Console.WriteLine("Zawartość CO2 w spalinach: {0} %", V_CO2sp.ToString("F5", ci));
-            Console.WriteLine("Zawartość H2O w spalinach: {0} %", V_H2Osp.ToString("F5", ci));
-            Console.WriteLine("Zawartość N2 w spalinach: {0} %", V_N2sp.ToString("F5", ci));
-            Console.WriteLine("Zawartość O2 w spalinach: {0} %\n", V_O2sp.ToString("F5", ci));
+//            Console.WriteLine("Zawartość CO2 w spalinach: {0} %", V_CO2sp.ToString("F5", ci));
+//            Console.WriteLine("Zawartość H2O w spalinach: {0} %", V_H2Osp.ToString("F5", ci));
+//            Console.WriteLine("Zawartość N2 w spalinach: {0} %", V_N2sp.ToString("F5", ci));
+//            Console.WriteLine("Zawartość O2 w spalinach: {0} %\n", V_O2sp.ToString("F5", ci));
 
             //strumień objętości powietrza
             double Vc_wn = countVc_wn(Vc, input.Vg);
             double Vc_wrz = countVc_wrz(input.tp, Vc_wn);
-            Console.WriteLine("Objętościowy strumień powietrza: ");
-            Console.WriteLine("Warunki normalne: {0} Nm3/h", Vc_wn.ToString("F5", ci));
-            Console.WriteLine("Warunki rzeczywiste: {0} m3/h\n", Vc_wrz.ToString("F5", ci));
+//            Console.WriteLine("Objętościowy strumień powietrza: ");
+//            Console.WriteLine("Warunki normalne: {0} Nm3/h", Vc_wn.ToString("F5", ci));
+//            Console.WriteLine("Warunki rzeczywiste: {0} m3/h\n", Vc_wrz.ToString("F5", ci));
 
             //strumień objętości spalin
             double Tsp = 514.932;
             double Vs_wn = countVs(input.Vg, VSprim);
             double Vs_wrz = countVs_wrz(Tsp, Vs_wn);
-            Console.WriteLine("Objętościowy strumień spalin: ");
-            Console.WriteLine("Warunki normalne: {0} Nm3/h", Vs_wn.ToString("F5", ci));
-            Console.WriteLine("Warunki rzeczywiste: {0} m3/h\n", Vs_wrz.ToString("F5", ci));
+//            Console.WriteLine("Objętościowy strumień spalin: ");
+//            Console.WriteLine("Warunki normalne: {0} Nm3/h", Vs_wn.ToString("F5", ci));
+//            Console.WriteLine("Warunki rzeczywiste: {0} m3/h\n", Vs_wrz.ToString("F5", ci));
 
             //wartość opałowa gazu
             double Qi = countQi(input.CO, input.CH4, input.H2);
-            Console.WriteLine("Wartość opałowa gazu Qi: {0} kJ/m3", Qi.ToString("F5", ci));
+//            Console.WriteLine("Wartość opałowa gazu Qi: {0} kJ/m3", Qi.ToString("F5", ci));
             //entalpia gazu
             double Hs_gas = countHsGas(input.CO, input.CH4, input.H2, input.O2, input.CO2, input.N2, input.tg);
-            Console.WriteLine("Entalpia gazu: {0} kJ/m3", Hs_gas.ToString("F5", ci));
+//            Console.WriteLine("Entalpia gazu: {0} kJ/m3", Hs_gas.ToString("F5", ci));
             //strumień ciepła z gazu
             double Qg = countQg(input.Vg, Qi, Hs_gas);
-            Console.WriteLine("Strumień ciepła gazu (Qg): {0} kW\n", (Qg/3600).ToString("F5", ci));
+//            Console.WriteLine("Strumień ciepła gazu (Qg): {0} kW\n", (Qg/3600).ToString("F5", ci));
             //strumień ciepła powietrza
             double Qp = countQp(Vc_wn, input.tp);
-            Console.WriteLine("Strumień ciepła powietrza (Qp): {0} kW", (Qp/3600).ToString("F5", ci));
+//            Console.WriteLine("Strumień ciepła powietrza (Qp): {0} kW", (Qp/3600).ToString("F5", ci));
             //temperatura adiabatyczna
             double ta = 1948.272;//countAdiabaticTemperatureOfFlame(Qi, VSprim, V_CO2sp, V_H2Osp, V_N2sp, V_O2sp, Qg, Qp);
-            Console.WriteLine("Adiabatyczna temperatura płomienia: {0} st.C", ta.ToString("F5", ci));
+//            Console.WriteLine("Adiabatyczna temperatura płomienia: {0} st.C", ta.ToString("F5", ci));
             //strumień ciepła wody
             double Qw = countQw(input.alfa, input.Vg, Vc_wn, ta, input.A, input.twIn);
-            Console.WriteLine("Strumień ciepła wody (Qw): {0} kW", (Qw/3600).ToString("F5", ci));
+//            Console.WriteLine("Strumień ciepła wody (Qw): {0} kW", (Qw/3600).ToString("F5", ci));
             //temperatura za piecem
             double tw = countTw(input.mw, Qw, input.twIn, input.alfa, input.Vg, Vc_wn, input.A, ta);
-            Console.WriteLine("Temperatura wody za piecem: {0} st.C", tw.ToString("F5", ci));
+//            Console.WriteLine("Temperatura wody za piecem: {0} st.C", tw.ToString("F5", ci));
             //strumień ciepła spalin
             double Qs = countQs(input.beta, Qg, Qp, Qw);
             //strumień ciepła strat
             double Qstr = countQstr(input.beta, Qg, Qp, Qw);
             //sprawność pieca
             double eta = countEta(Qg, Qw, Qp);
-            Console.WriteLine("Strumień ciepła spalin (Qs): {0} kW", Qs.ToString("F5", ci));
-            Console.WriteLine("Strumień ciepła strat (Qstr): {0} kW", Qstr.ToString("F5", ci));
-            Console.WriteLine("Sprawność pieca: {0}", eta.ToString("F5", ci));
+//            Console.WriteLine("Strumień ciepła spalin (Qs): {0} kW", Qs.ToString("F5", ci));
+//            Console.WriteLine("Strumień ciepła strat (Qstr): {0} kW", Qstr.ToString("F5", ci));
+//            Console.WriteLine("Sprawność pieca: {0}", eta.ToString("F5", ci));
             return new OutputData
             {
                 CO2 = Math.Round(V_CO2sp, 3),
@@ -215,7 +215,7 @@ namespace Stove
             double temp = 0, _temp_previous = 0;
             double hsp = (Qg + Qp)/ VSprim;
             double Tk = 0;
-            Console.WriteLine("hsp: {0}", hsp);
+//            Console.WriteLine("hsp: {0}", hsp);
             for(int t=0; t<5000; t++)
             {
                 Tk = t + TemperatureReference;
@@ -228,11 +228,11 @@ namespace Stove
                 _hsp = 0.01 * (hs_CO2(Tk) * CO2_fumes + hs_H2O(Tk) * H2O_fumes + hs_N2(Tk) * N2_Fumes + hs_O2(Tk) * O2_fumes);
                 if (_hsp>hsp)
                 {
-                    Console.WriteLine("hsCO2: {0}", hsCO2);
-                    Console.WriteLine("hsH2O: {0}", hsH2O);
-                    Console.WriteLine("hsN2: {0}", hsN2);
-                    Console.WriteLine("hsO2: {0}", hsO2);
-                    Console.WriteLine("Temp: {0}", Tk);
+//                    Console.WriteLine("hsCO2: {0}", hsCO2);
+//                    Console.WriteLine("hsH2O: {0}", hsH2O);
+//                    Console.WriteLine("hsN2: {0}", hsN2);
+//                    Console.WriteLine("hsO2: {0}", hsO2);
+//                    Console.WriteLine("Temp: {0}", Tk);
                     break;
                 }
                 _hsp_previous = _hsp;
@@ -258,7 +258,7 @@ namespace Stove
         {
             double tw = (Qw / (mw * hs_H2Ol(293.15))) + twin;
             double hs = (mw*hs_H2Ol(306.15))-(mw*hs_H2Ol(293.15));
-            Console.WriteLine(hs);
+//            Console.WriteLine(hs);
             double VgVc = Vg * Vc;
             double result = ((alfa * Math.Pow(VgVc, 0.6) * Math.Pow(ta, 0.3) * A * (ta - twin)) / (mw * hs_H2Ol(293.15) * twin)) + twin;
             return hs;

@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Balance.cs" />
+    <Compile Include="Chart.cs" />
     <Compile Include="FileStream.cs" />
     <Compile Include="IData.cs" />
     <Compile Include="InputData.cs" />

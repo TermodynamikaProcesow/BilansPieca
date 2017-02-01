@@ -66,7 +66,7 @@ namespace Stove
         /// </summary>
         public double beta { get; }
 
-        public InputData(InputData input, int Vg_multiplication)
+        public InputData(InputData input, int vg)
         {
             CO = input.CO;
             CO2 = input.CO2;
@@ -75,7 +75,7 @@ namespace Stove
             N2 = input.N2;
             H2 = input.H2;
             lambda = input.lambda;
-            Vg = Vg_multiplication * input.Vg;
+            Vg = vg;
             tg = input.tg;
             tp = input.tp;
             twIn = input.twIn;
