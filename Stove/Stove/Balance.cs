@@ -71,28 +71,32 @@ namespace Stove
 //            Console.WriteLine("Wartość opałowa gazu Qi: {0} kJ/m3", Qi.ToString("F5", ci));
             //entalpia gazu
             double Hs_gas = countHsGas(input.CO, input.CH4, input.H2, input.O2, input.CO2, input.N2, input.tg);
-//            Console.WriteLine("Entalpia gazu: {0} kJ/m3", Hs_gas.ToString("F5", ci));
+//           Console.WriteLine("Entalpia gazu: {0} kJ/m3", Hs_gas.ToString("F5", ci));
             //strumień ciepła z gazu
-            double Qg = countQg(input.Vg, Qi, Hs_gas);
-//            Console.WriteLine("Strumień ciepła gazu (Qg): {0} kW\n", (Qg/3600).ToString("F5", ci));
+            double Qg = countQg(Qi, Hs_gas);
+            double Qg_Vg = countQgVg(Qg, input.Vg);
+            //Console.WriteLine("Strumień ciepła gazu (Qg): {0} kW\n", (Qg/3600).ToString("F5", ci));
             //strumień ciepła powietrza
-            double Qp = countQp(Vc_wn, input.tp);
-//            Console.WriteLine("Strumień ciepła powietrza (Qp): {0} kW", (Qp/3600).ToString("F5", ci));
+            double Qp = countQp(Vc, input.tp);
+            double Qp_Vg = countQpVg(Qp, input.Vg);
+            //            Console.WriteLine("Strumień ciepła powietrza (Qp): {0} kW", (Qp/3600).ToString("F5", ci));
             //temperatura adiabatyczna
-            double ta = 1948.272;//countAdiabaticTemperatureOfFlame(Qi, VSprim, V_CO2sp, V_H2Osp, V_N2sp, V_O2sp, Qg, Qp);
-//            Console.WriteLine("Adiabatyczna temperatura płomienia: {0} st.C", ta.ToString("F5", ci));
+            double ta = countAdiabaticTemperatureOfFlame(Qi, VSprim, V_CO2sp, V_H2Osp, V_N2sp, V_O2sp, Qg, Qp);
+            //            Console.WriteLine("Adiabatyczna temperatura płomienia: {0} st.C", ta.ToString("F5", ci));
             //strumień ciepła wody
-            double Qw = countQw(input.alfa, input.Vg, Vc_wn, ta, input.A, input.twIn);
+            double Qw = 48740.40;//countQw(input.alfa, input.Vg, Vc_wn, ta, input.A, input.twIn);
 //            Console.WriteLine("Strumień ciepła wody (Qw): {0} kW", (Qw/3600).ToString("F5", ci));
             //temperatura za piecem
             double tw = countTw(input.mw, Qw, input.twIn, input.alfa, input.Vg, Vc_wn, input.A, ta);
 //            Console.WriteLine("Temperatura wody za piecem: {0} st.C", tw.ToString("F5", ci));
             //strumień ciepła spalin
-            double Qs = countQs(input.beta, Qg, Qp, Qw);
+            double Qs = countQs(input.beta, Qg_Vg, Qp_Vg, Qw);
+            //temperatura spalin
+            Tsp = temperaturaSpalin(Qs, Vs_wn, V_CO2sp, V_H2Osp, V_N2sp, V_O2sp);
             //strumień ciepła strat
-            double Qstr = countQstr(input.beta, Qg, Qp, Qw);
+            double Qstr = countQstr(input.beta, Qg_Vg, Qp_Vg, Qw);
             //sprawność pieca
-            double eta = countEta(Qg, Qw, Qp);
+            double eta = countEta(Qg_Vg, Qw, Qp_Vg);
 //            Console.WriteLine("Strumień ciepła spalin (Qs): {0} kW", Qs.ToString("F5", ci));
 //            Console.WriteLine("Strumień ciepła strat (Qstr): {0} kW", Qstr.ToString("F5", ci));
 //            Console.WriteLine("Sprawność pieca: {0}", eta.ToString("F5", ci));
@@ -107,11 +111,11 @@ namespace Stove
                 VcRz = Math.Round(Vc_wrz, 3),
                 Vs = Math.Round(Vs_wn, 3),
                 VsRz = Math.Round(Vs_wrz, 3),
-                tw = Math.Round(tw, 3),
+                tw = Math.Round(tw/3600, 3),
                 ta = Math.Round(ta, 3),
                 ts = Math.Round(Tsp, 3),
-                Qq = Math.Round((Qg/3600), 3),
-                Qp = Math.Round((Qp/3600), 3),
+                Qq = Math.Round((Qg_Vg/3600), 3),
+                Qp = Math.Round((Qp_Vg/3600), 3),
                 Qw = Math.Round((Qw/3600), 3),
                 Qs = Math.Round((Qs), 3),
                 Qstr = Math.Round((Qstr), 3),
@@ -150,7 +154,7 @@ namespace Stove
         private static double countV_H2O(double procentH2, double procentCH4, double ksi, double VolumeGasReal) => ((procentH2 / 100) + (2 * procentCH4 / 100) + (0.0016 * ksi * VolumeGasReal));
 
         private static double countV_N2(double procentN2, double V) => ((procentN2 / 100) + (V * 0.79));
-
+ 
         private static double countV_O2(double Oc, double Ot) => Oc - Ot;
 
         private static double countVSprim(double V_CO2, double V_H2O, double V_N2, double V_O2) => V_CO2 + V_H2O + V_N2 + V_O2;
@@ -170,29 +174,36 @@ namespace Stove
         /// <summary>
         /// strumień objetości spalin w warunkach normalnych
         /// </summary>
-        private static double countVs(double Vg, double Vc) => Vg * Vc;
+        private static double countVs(double Vg, double VSprim) => Vg * VSprim;
 
         private static double countVs_wrz(double Tsp, double Vsp) => Vsp * (Tsp + TemperatureReference) / TemperatureReference;
 
         /// <summary>
         /// wartość opałowa gazu
         /// </summary>
-        private static double countQi(double CO_fuel, double CH4_fuel, double H2_fuel) => Qco * (CO_fuel / 100) + Qch4 * (CH4_fuel / 100) + Qh2 * (H2_fuel / 100);
-
+        //private static double countQi(double CO_fuel, double CH4_fuel, double H2_fuel) => Qco * (CO_fuel / 100) + Qch4 * (CH4_fuel / 100) + Qh2 * (H2_fuel / 100);
+        private static double countQi(double CO_fuel, double CH4_fuel, double H2_fuel)
+        {
+            return 0.01 * (Qco * CO_fuel + Qch4 * CH4_fuel + Qh2 * H2_fuel);
+        }
         /// <summary>
         /// entalpia gazu
         /// </summary>
         private static double countHsGas(double CO_fuel, double CH4_fuel, double H2_fuel, double O2_fuel, double CO2_fuel, double N2_fuel, double tg)
         {
             double Tg = tg + TemperatureReference;
-            //dodać reszte skladuhujgg
+
             return hs_CO(Tg) * (CO_fuel / 100) + hs_CH4(Tg) * (CH4_fuel / 100) + hs_H2(Tg) * (H2_fuel / 100) + hs_CO2(Tg)*(CO2_fuel/100)+hs_N2(Tg)*(N2_fuel/100)+hs_O2(Tg)*(O2_fuel/100);
         }
 
         /// <summary>
         /// strumień ciepła z gazu
         /// </summary>
-        private static double countQg(double Vg_wrz, double Qi, double hsGas) => (Vg_wrz * (hsGas + Qi));
+        private static double countQg(double Qi, double hsGas) => (hsGas + Qi);
+        /// <summary>
+        /// strumien ciepła z gazu przeliczony przez strumień objetości gazu
+        /// </summary>
+        private static double countQgVg(double Qg, double Vg) => Vg * Qg;
 
         /// <summary>
         /// strumień ciepła powietrza
@@ -203,7 +214,10 @@ namespace Stove
             double Qp = Vc * (0.21 * hs_O2(Tp) + 0.79 * hs_N2(Tp));
             return Qp;
         }
-
+        /// <summary>
+        /// strumień ciepła powietrza przeliczony przez strumień objetości gazu
+        /// </summary>
+        private static double countQpVg(double Qp, double Vg) => Vg * Qp;
         /// <summary>
         /// adiabatyczna temperatura płomienia
         /// </summary>
@@ -215,8 +229,8 @@ namespace Stove
             double temp = 0, _temp_previous = 0;
             double hsp = (Qg + Qp)/ VSprim;
             double Tk = 0;
-//            Console.WriteLine("hsp: {0}", hsp);
-            for(int t=0; t<5000; t++)
+                   //    Console.WriteLine("hsp: {0}", hsp);
+            for (int t = 0; t < 5000; t++)
             {
                 Tk = t + TemperatureReference;
                 hsCO2 = hs_CO2(Tk);
@@ -226,22 +240,45 @@ namespace Stove
                 temp = t;
                 //_hsp = ((CO2_fumes *0.01) * hsCO2) + ((H2O_fumes *0.01) * hsH2O) + ((N2_Fumes * 0.01) * hsN2) + ((O2_fumes *0.01) * hsO2);
                 _hsp = 0.01 * (hs_CO2(Tk) * CO2_fumes + hs_H2O(Tk) * H2O_fumes + hs_N2(Tk) * N2_Fumes + hs_O2(Tk) * O2_fumes);
-                if (_hsp>hsp)
+                if (_hsp > hsp)
                 {
-//                    Console.WriteLine("hsCO2: {0}", hsCO2);
-//                    Console.WriteLine("hsH2O: {0}", hsH2O);
-//                    Console.WriteLine("hsN2: {0}", hsN2);
-//                    Console.WriteLine("hsO2: {0}", hsO2);
-//                    Console.WriteLine("Temp: {0}", Tk);
+                    //                    Console.WriteLine("hsCO2: {0}", hsCO2);
+                    //                    Console.WriteLine("hsH2O: {0}", hsH2O);
+                    //                    Console.WriteLine("hsN2: {0}", hsN2);
+                    //                    Console.WriteLine("hsO2: {0}", hsO2);
+                                        //Console.WriteLine("Temp: {0}", temp);
                     break;
                 }
+
                 _hsp_previous = _hsp;
                 _temp_previous = t;
             }
-            ta = ((hsp-_hsp_previous)/(_hsp-_hsp_previous))*(temp-_temp_previous)+temp;
+            ta = (((hsp-_hsp_previous)/(_hsp-_hsp_previous))*(temp-_temp_previous))+_temp_previous;
             return ta;
         }
 
+        private static double temperaturaSpalin(double Qs, double Vs, double CO2, double H2O, double N2, double O2)
+        {
+            double tsp = 0;
+            double hsCO2 = 0, hsH2O = 0, hsN2 = 0, hsO2 = 0;
+            double temp = 0;
+            double hsp = 0;
+            for (int t = 0; t < 3000; t++)
+            {
+                temp = t + TemperatureReference;
+                hsCO2 = hs_CO2(temp);
+                hsH2O = hs_H2O(temp);
+                hsN2 = hs_N2(temp);
+                hsO2 = hs_O2(temp);
+                hsp = 0.01 * (hsCO2 * CO2 + hsH2O * H2O + hsN2 * N2 + hsO2 * O2);
+                if (hsp >= Qs)
+                {
+                    break;
+                }
+                tsp = t;
+            }
+            return tsp;
+        }
         /// <summary>
         /// strumień ciepła wody
         /// </summary>
@@ -256,12 +293,30 @@ namespace Stove
         /// </summary>
         private static double countTw(double mw, double Qw, double twin, double alfa, double Vg, double Vc, double A, double ta)
         {
-            double tw = (Qw / (mw * hs_H2Ol(293.15))) + twin;
-            double hs = (mw*hs_H2Ol(306.15))-(mw*hs_H2Ol(293.15));
-//            Console.WriteLine(hs);
-            double VgVc = Vg * Vc;
-            double result = ((alfa * Math.Pow(VgVc, 0.6) * Math.Pow(ta, 0.3) * A * (ta - twin)) / (mw * hs_H2Ol(293.15) * twin)) + twin;
-            return hs;
+            //            double tw = (Qw / (mw * hs_H2Ol(293.15))) + twin;
+            //            double hs = (mw*hs_H2Ol(306.15))-(mw*hs_H2Ol(293.15));
+            ////            Console.WriteLine(hs);
+            //            double VgVc = Vg * Vc;
+            //            double result = ((alfa * Math.Pow(VgVc, 0.6) * Math.Pow(ta, 0.3) * A * (ta - twin)) / (mw * hs_H2Ol(293.15) * twin)) + twin;
+            //            return hs;
+
+            double hW = Qw / mw;
+            double hsp = 0;
+            double temp = 273;
+            while (hsp <= hW)
+            {
+                temp += 1;
+                hsp = hs_H2Ol(temp);
+            }
+
+            hsp = 0;
+            temp -= 2;
+            while (hsp <= hW)
+            {
+                temp += 0.001;
+                hsp = hs_H2Ol(temp);
+            }
+            return (temp - 273) + twin;
         }
 
         /// <summary>
@@ -286,7 +341,7 @@ namespace Stove
         private static double hs_CO2(double T) => 1.0 / 22.42 * (4.184 * (10.34 * (T - TemperatureReference) + 0.00274 * 0.5 * (T * T - TemperatureReference * TemperatureReference)));
         private static double hs_CO(double T) => 1.0 / 22.42 * (4.184 * (6.6 * (T - TemperatureReference) + 0.0012 * 0.5 * (T * T - TemperatureReference * TemperatureReference)));
         private static double hs_H2(double T) => 1.0 / 22.42 * (4.184 * (6.62 * (T - TemperatureReference) + 0.00081 * 0.5 * (T * T - TemperatureReference * TemperatureReference)));
-        private static double hs_N2(double T) => 1.0 / 22.42 * (4.184 * (5.34 * (T - TemperatureReference) + 0.0115 * 0.5 * (T * T - TemperatureReference * TemperatureReference)));
+        private static double hs_N2(double T) => 1.0 / 22.42 * (4.184 * (6.5 * (T - TemperatureReference) + 0.001 * 0.5 * (T * T - TemperatureReference * TemperatureReference)));
         private static double hs_CH4(double T) => 1.0 / 22.42 * (4.184 * (5.34 * (T - TemperatureReference) + 0.0115 * 0.5 * (T * T - TemperatureReference * TemperatureReference)));
         #endregion
     }
