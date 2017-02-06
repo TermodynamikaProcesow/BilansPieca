@@ -91,7 +91,7 @@ namespace Stove
             //strumień ciepła spalin
             double Qs = countQs(input.beta, Qg_Vg, Qp_Vg, Qw);
             //temperatura spalin
-            double Tsp = temperaturaSpalin(Qs, Vs_wn, V_CO2sp, V_H2Osp, V_N2sp, V_O2sp, input.Vg, VSprim);
+            double Tsp = countTsp(Qs, Vs_wn, V_CO2sp, V_H2Osp, V_N2sp, V_O2sp, input.Vg, VSprim);
             double Vs_wrz = countVs_wrz(Tsp, Vs_wn);
             //strumień ciepła strat
             double Qstr = countQstr(input.beta, Qg_Vg, Qp_Vg, Qw);
@@ -224,7 +224,6 @@ namespace Stove
         private static double countAdiabaticTemperatureOfFlame(double Qi, double VSprim, double CO2_fumes, double H2O_fumes, double N2_Fumes, double O2_fumes, double Qg, double Qp)
         {
             double ta = 0;
-            //double hsCO2 = 0, hsH2O = 0, hsN2 = 0, hsO2 = 0;
             double _hsp = 0, _hsp_previous = 0;
             double temp = 0, _temp_previous = 0;
             double hsp = (Qg + Qp)/ VSprim;
@@ -233,12 +232,7 @@ namespace Stove
             for (int t = 0; t < 5000; t++)
             {
                 Tk = t + TemperatureReference;
-                //hsCO2 = hs_CO2(Tk);
-                //hsH2O = hs_H2O(Tk);
-                //hsN2 = hs_N2(Tk);
-                //hsO2 = hs_O2(Tk);
                 temp = t;
-                //_hsp = ((CO2_fumes *0.01) * hsCO2) + ((H2O_fumes *0.01) * hsH2O) + ((N2_Fumes * 0.01) * hsN2) + ((O2_fumes *0.01) * hsO2);
                 _hsp = 0.01 * (hs_CO2(Tk) * CO2_fumes + hs_H2O(Tk) * H2O_fumes + hs_N2(Tk) * N2_Fumes + hs_O2(Tk) * O2_fumes);
                 if (_hsp > hsp)
                 {
@@ -257,10 +251,8 @@ namespace Stove
             return ta;
         }
 
-        private static double temperaturaSpalin(double Qs, double Vs, double CO2, double H2O, double N2, double O2, double Vg, double Vsprim)
+        private static double countTsp(double Qs, double Vs, double CO2sp, double H2Osp, double N2sp, double O2sp, double Vg, double Vsprim)
         {
-            //double tsp = 0;
-            //double hsCO2 = 0, hsH2O = 0, hsN2 = 0, hsO2 = 0;
             double temp = TemperatureReference;
             double hsp = 0;
             double r = Vsprim * Vg;
@@ -270,7 +262,7 @@ namespace Stove
             while (hsp<result)
                 {
                     temp += 0.001;
-                    hsp = ((hs_CO2(temp) * (CO2 / 100)) + (hs_H2O(temp) * (H2O / 100)) + (hs_N2(temp) * (N2 / 100)) + (hs_O2(temp) * (O2 / 100)));
+                    hsp = ((hs_CO2(temp) * (CO2sp / 100)) + (hs_H2O(temp) * (H2Osp / 100)) + (hs_N2(temp) * (N2sp / 100)) + (hs_O2(temp) * (O2sp / 100)));
                 }
             return temp-TemperatureReference;
         }
@@ -290,18 +282,15 @@ namespace Stove
         {
             double r = mw*(hs_H2Ol(twin+TemperatureReference));
 
-            double wynik = ((Qw*3600) + r)/mw;
+            double resultOfEquation = ((Qw*3600) + r)/mw;
             
             double hsp = 0;
             double temp = TemperatureReference;
-            while (hsp <= wynik)
+            while (hsp <= resultOfEquation)
             {
                 temp += 0.001;
                 hsp = hs_H2Ol(temp);
-                //Console.WriteLine(hsp);
             }
-
-            
             return (temp - TemperatureReference);
         }
 
