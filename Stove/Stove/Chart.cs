@@ -66,7 +66,7 @@ namespace Stove
                 }
             };
 
-            CreateChart(outputFileName, dataSet, series);
+            CreateChart(outputFileName, dataSet, series, "V [m3/h]");
         }
 
         public static void DrawQChart(IEnumerable<OutputData> outputDatas, string outputFileName)
@@ -146,10 +146,10 @@ namespace Stove
                 }
             };
 
-            CreateChart(outputFileName, dataSet, series);
+            CreateChart(outputFileName, dataSet, series, "Q [kW]");
         }
-        
-        private static void CreateChart(string outputFileName, DataSet dataSet, List<Series> series)
+
+        private static void CreateChart(string outputFileName, DataSet dataSet, List<Series> series, string axisYtitle)
         {
             //prepare chart control...
             var chart = new System.Windows.Forms.DataVisualization.Charting.Chart
@@ -179,12 +179,12 @@ namespace Stove
                 },
                 AxisY = new Axis
                 {
-                    Title = "V [m3/h]",
+                    Title = axisYtitle,
                     TitleFont = new Font("Tahoma", 12.0f),
                 }
             });
 
-            chart.Legends.Add(new Legend("Legend") { Font = new Font("Tahoma", 12.0f) });
+            chart.Legends.Add(new Legend("Legend") {Font = new Font("Tahoma", 12.0f)});
 
             //databind...
             chart.DataBind();
@@ -193,7 +193,7 @@ namespace Stove
             chart.SaveImage(outputFileName, ChartImageFormat.Png);
 
             //open result...
-            ProcessStartInfo psi = new ProcessStartInfo(outputFileName) { UseShellExecute = true };
+            ProcessStartInfo psi = new ProcessStartInfo(outputFileName) {UseShellExecute = true};
             Process.Start(psi);
         }
     }

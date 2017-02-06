@@ -9,58 +9,72 @@ namespace Stove
         /// % - zawartosc CO w paliwie
         /// </summary>
         public double CO { get; }
+
         /// <summary>
         /// % - zawartosc CO2 w paliwie
         /// </summary>
         public double CO2 { get; }
+
         /// <summary>
         /// % - zawartosc CH4 w paliwie
         /// </summary>
         public double CH4 { get; }
+
         /// <summary>
         /// % - zawartosc O2 w paliwie
         /// </summary>
         public double O2 { get; }
+
         /// <summary>
         /// % - zawartosc N2 w paliwie
         /// </summary>
         public double N2 { get; }
+
         /// <summary>
         /// % - zawartosc H2 w paliwie
         /// </summary>
         public double H2 { get; }
+
         /// <summary>
         /// współczynnik nadmiaru powietrza
         /// </summary>
         public double lambda { get; }
+
         /// <summary>
         /// Nm3/h - objetosciowy strumien paliwa
         /// </summary>
         public double Vg { get; }
+
         /// <summary>
         /// oC - temp. paliwa
         /// </summary>
         public double tg { get; }
+
         /// <summary>
         /// oC - temp. powietrza
         /// </summary>
         public double tp { get; }
+
         /// <summary>
         /// oC - temp. wody przed piecem
         /// </summary>
         public double twIn { get; }
+
         /// <summary>
         /// kg/h - masowy strumien wody w wymienniku pieca
         /// </summary>
         public double mw { get; }
+
         /// <summary>
         /// m2 - powierzchnia wymiennika w piecu
         /// </summary>
         public double A { get; }
+
         /// <summary>
         /// współczynnik przejmowania ciepla wymiennika
         /// </summary>
         public double alfa { get; }
+
         /// <summary>
         /// współczynnik podziału ciepła do spalin i otoczenia
         /// </summary>
